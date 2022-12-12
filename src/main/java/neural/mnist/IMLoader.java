@@ -6,15 +6,16 @@ package neural.mnist;
  * @author Ron.Coleman
  */
 public interface IMLoader {
-    record Normal(double[][] pixels, double[][] labels) {}
+    record Normal(double[][] pixels) {}
     ////////////////
+    // TODO: Add a constructor which takes the pixel and label paths.
     ////////////////
 
     /**
      * Gets the pixel and label data in row-major order from their respective files.
      * @return Data in row-major order.
      */
-    public MDigit[] load();
+    public MLetter[] load();
 
     /**
      * Gets the pixel magic number.
@@ -26,7 +27,7 @@ public interface IMLoader {
      * Gets the label magic number.
      * @return Magic number
      */
-    public int getLabelsMagic();
+    //public int getLabelsMagic();
 
     /**
      * Gets the checksum over the pixels <i>only</i>.

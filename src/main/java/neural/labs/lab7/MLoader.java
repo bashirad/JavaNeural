@@ -1,13 +1,10 @@
 package neural.labs.lab7;
 
 import neural.mnist.IMLoader;
-import neural.mnist.MDigit;
+import neural.mnist.MLetter;
 import org.encog.mathutil.Equilateral;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.zip.CRC32;
 
 public class MLoader implements IMLoader {
@@ -17,9 +14,9 @@ public class MLoader implements IMLoader {
     private int rows = 0;
     private int columns = 0;
 
-    MDigit currentpixel = null;
+    MLetter currentpixel = null;
 
-    MDigit[] loadData = null;
+    MLetter[] loadData = null;
 
     private int added = 0;
     private int labelNumber = 0;
@@ -33,17 +30,16 @@ public class MLoader implements IMLoader {
     public static final Equilateral eq = new Equilateral(numDigits, NORMALIZED_HI, NORMALIZED_LO);
 
 
-    String pixelpath = "C:\\Users\\Bashir\\Documents\\Bashirs_Code_all\\Java\\BashirzJavaNeural\\data\\t10k-images.idx3-ubyte";
-    String labelpath = "C:\\Users\\Bashir\\Documents\\Bashirs_Code_all\\Java\\BashirzJavaNeural\\data\\t10k-labels.idx1-ubyte";
+    String pixelpath = "C:\\Users\\maxje\\OneDrive\\Desktop\\Ai-Stuff\\MaxEnglishzJavaNeural\\data\\train-images.idx3-ubyte\\";
+    String labelpath = "C:\\Users\\maxje\\OneDrive\\Desktop\\Ai-Stuff\\MaxEnglishzJavaNeural\\data\\train-labels.idx1-ubyte\\";
 
-    public MLoader(String pixelpaths, String labelpaths) {
+    public MLoader(String pixelpaths) {
         this.pixelpath = pixelpaths;
-        this.labelpath = labelpaths;
     }
 
     @Override
     //add try catch for file not found exception later
-    public MDigit[] load() {
+    public MLetter[] load() {
         loadData = null;
         try {
             DataInputStream d = new DataInputStream(new BufferedInputStream(new FileInputStream(pixelpath)));
@@ -52,24 +48,24 @@ public class MLoader implements IMLoader {
             rows = d.readInt();
             columns = d.readInt();
 
-            DataInputStream labels = new DataInputStream(new BufferedInputStream(new FileInputStream(labelpath)));
-            this.labelNumber = labels.readInt();
-            this.numLabels = labels.readInt();
-            loadData = new MDigit[numItems];
-            if (numItems == numLabels) {
+            //DataInputStream labels = new DataInputStream(new BufferedInputStream(new FileInputStream(labelpath)));
+            //this.labelNumber = labels.readInt();
+            //this.numLabels = labels.readInt();
+            loadData = new MLetter[numItems];
+
                 for (int i = 0; i < numLabels; i++) {
                     mDigitData = new double[rows * columns];
-                    int labelOutput = labels.readUnsignedByte();
+                    //int labelOutput = labels.readUnsignedByte();
                     for (int j = 0; j < rows * columns; j++) {
                         int currentStream = d.readUnsignedByte();
                         crc.update(currentStream);
                         mDigitData[j] = currentStream;
 
                     }
-                    MDigit currentpixel = new MDigit(i, mDigitData, labelOutput);
+                    MLetter currentpixel = new MLetter(mDigitData,1);
                     loadData[i] = currentpixel;
                 }
-            }
+
         } catch (IOException e) {
             System.out.println(e);
         }
@@ -83,26 +79,21 @@ public class MLoader implements IMLoader {
     }
 
     @Override
-    public int getLabelsMagic() {
-        return labelNumber;
-    }
-
-    @Override
     public long getChecksum() {
         return crc.getValue();
     }
 
     public Normal normalize() {
         double[][] newPixel = new double[numItems][784];
-        double[][] newLabels = new double[numItems][9];
+        //double[][] newLabels = new double[numItems][9];
         for (int i = 0; i < loadData.length; i++) {
-            MDigit n = loadData[i];
+            MLetter n = loadData[i];
             for (int j = 0; j < n.pixels().length; j++) {
-                newPixel[i][j] = (double)n.pixels()[j] / 255.0;
+                newPixel[i][j] = (double) n.pixels()[j] / 255.0;
             }
-            newLabels[i] = eq.encode(n.label());
+           // newLabels[i] = eq.encode(n.label());
         }
-        return new Normal(newPixel, newLabels);
+        return new Normal(newPixel);
     }
 }
 

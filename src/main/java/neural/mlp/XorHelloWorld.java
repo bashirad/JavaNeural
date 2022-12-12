@@ -128,3 +128,5 @@ public class XorHelloWorld {
         Encog.getInstance().shutdown();
     }
 }
+
+
